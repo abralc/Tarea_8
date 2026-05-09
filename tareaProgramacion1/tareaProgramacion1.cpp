@@ -31,6 +31,39 @@ bool soloNumeros(string texto) {
     return true;
 }
 
+bool soloLetrasYEspacios(string texto) {
+    if (texto.empty()) {
+        return false;
+    }
+
+    string permitidos = "abcdefghijklmnÒopqrstuvwxyzABCDEFGHIJKLMN—OPQRSTUVWXYZ ·ÈÌÛ˙¡…Õ”⁄";
+
+    for (char c : texto) {
+        if (permitidos.find(c) == string::npos) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool contieneTextoPeligroso(string texto) {
+    string peligrosos[] = {
+        "'", "\"", ";", "--", "/*", "*/", "\\",
+        "DROP", "drop", "DELETE", "delete",
+        "INSERT", "insert", "UPDATE", "update",
+        "SELECT", "select"
+    };
+
+    for (string palabra : peligrosos) {
+        if (texto.find(palabra) != string::npos) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool validarCodigoFormato(string codigo) {
     regex patron("^E[0-9]{3}$");
     return regex_match(codigo, patron);
@@ -70,6 +103,82 @@ bool validarCodigoEstudiante(string codigo, int id_actual, bool esActualizacion)
     return true;
 }
 
+bool validarNombres(string nombres) {
+    if (nombres.empty()) {
+        cout << "ALERTA: Los nombres son obligatorios." << endl;
+        return false;
+    }
+
+    if (nombres.length() > 60) {
+        cout << "ALERTA: Los nombres no deben superar 60 caracteres." << endl;
+        return false;
+    }
+
+    if (!soloLetrasYEspacios(nombres)) {
+        cout << "ALERTA: Los nombres solo deben contener letras y espacios." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool validarApellidos(string apellidos) {
+    if (apellidos.empty()) {
+        cout << "ALERTA: Los apellidos son obligatorios." << endl;
+        return false;
+    }
+
+    if (apellidos.length() > 60) {
+        cout << "ALERTA: Los apellidos no deben superar 60 caracteres." << endl;
+        return false;
+    }
+
+    if (!soloLetrasYEspacios(apellidos)) {
+        cout << "ALERTA: Los apellidos solo deben contener letras y espacios." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool validarDireccion(string direccion) {
+    if (direccion.empty()) {
+        cout << "ALERTA: La direccion es obligatoria." << endl;
+        return false;
+    }
+
+    if (direccion.length() > 100) {
+        cout << "ALERTA: La direccion no debe superar 100 caracteres." << endl;
+        return false;
+    }
+
+    if (contieneTextoPeligroso(direccion)) {
+        cout << "ALERTA: La direccion contiene caracteres o palabras no permitidas." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool validarTelefono(string telefono) {
+    if (telefono.empty()) {
+        cout << "ALERTA: El telefono es obligatorio." << endl;
+        return false;
+    }
+
+    if (!soloNumeros(telefono)) {
+        cout << "ALERTA: El telefono solo debe aceptar numeros." << endl;
+        return false;
+    }
+
+    if (telefono.length() != 8) {
+        cout << "ALERTA: El telefono debe tener exactamente 8 digitos." << endl;
+        return false;
+    }
+
+    return true;
+}
+
 bool validarTipoSangreTexto(string sangre) {
     regex patron("^(AB|A|B|O)[+-]$");
     return regex_match(sangre, patron);
@@ -101,18 +210,22 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     string nombres;
     string apellidos;
     string direccion;
+    string telefonoTexto;
     string fecha_nacimiento;
     int telefono;
     int id_tipo_sangre;
 
     cout << endl;
     cout << "Ingrese los datos del estudiante." << endl;
-    cout << "Codigo: obligatorio, maximo 4 caracteres, formato E001." << endl;
+    cout << "Instrucciones:" << endl;
+    cout << "- Codigo obligatorio, maximo 4 caracteres, formato E001." << endl;
+    cout << "- Nombres y apellidos obligatorios, solo letras y espacios, maximo 60 caracteres." << endl;
+    cout << "- Direccion obligatoria, maximo 100 caracteres, sin caracteres peligrosos." << endl;
+    cout << "- Telefono obligatorio, solo numeros, exactamente 8 digitos." << endl;
     cout << endl;
 
     cout << "Ingrese codigo: ";
-    cin >> codigo;
-    limpiarBuffer();
+    getline(cin, codigo);
 
     if (!validarCodigoEstudiante(codigo, id_actual, esActualizacion)) {
         Estudiante estudianteInvalido;
@@ -123,15 +236,40 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     cout << "Ingrese nombres: ";
     getline(cin, nombres);
 
+    if (!validarNombres(nombres)) {
+        Estudiante estudianteInvalido;
+        estudianteInvalido.setIdEstudiante(-1);
+        return estudianteInvalido;
+    }
+
     cout << "Ingrese apellidos: ";
     getline(cin, apellidos);
+
+    if (!validarApellidos(apellidos)) {
+        Estudiante estudianteInvalido;
+        estudianteInvalido.setIdEstudiante(-1);
+        return estudianteInvalido;
+    }
 
     cout << "Ingrese direccion: ";
     getline(cin, direccion);
 
+    if (!validarDireccion(direccion)) {
+        Estudiante estudianteInvalido;
+        estudianteInvalido.setIdEstudiante(-1);
+        return estudianteInvalido;
+    }
+
     cout << "Ingrese telefono: ";
-    cin >> telefono;
-    limpiarBuffer();
+    getline(cin, telefonoTexto);
+
+    if (!validarTelefono(telefonoTexto)) {
+        Estudiante estudianteInvalido;
+        estudianteInvalido.setIdEstudiante(-1);
+        return estudianteInvalido;
+    }
+
+    telefono = stoi(telefonoTexto);
 
     cout << "Ingrese fecha de nacimiento YYYY-MM-DD: ";
     getline(cin, fecha_nacimiento);
