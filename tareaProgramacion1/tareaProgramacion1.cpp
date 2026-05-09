@@ -3,6 +3,7 @@
 #include <limits>
 #include <regex>
 #include <cctype>
+#include <ctime>
 #include "Estudiante.h"
 #include "TipoSangre.h"
 
@@ -180,6 +181,95 @@ bool validarTelefono(string telefono) {
     return true;
 }
 
+bool esBisiesto(int anio) {
+    if (anio % 400 == 0) {
+        return true;
+    }
+
+    if (anio % 100 == 0) {
+        return false;
+    }
+
+    return anio % 4 == 0;
+}
+
+bool fechaReal(int anio, int mes, int dia) {
+    if (anio < 1900) {
+        return false;
+    }
+
+    if (mes < 1 || mes > 12) {
+        return false;
+    }
+
+    int diasMes[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    if (esBisiesto(anio)) {
+        diasMes[1] = 29;
+    }
+
+    if (dia < 1 || dia > diasMes[mes - 1]) {
+        return false;
+    }
+
+    return true;
+}
+
+bool fechaFutura(int anio, int mes, int dia) {
+    time_t tiempoActual = time(0);
+    tm fechaActual;
+
+    localtime_s(&fechaActual, &tiempoActual);
+
+    int anioActual = fechaActual.tm_year + 1900;
+    int mesActual = fechaActual.tm_mon + 1;
+    int diaActual = fechaActual.tm_mday;
+
+    if (anio > anioActual) {
+        return true;
+    }
+
+    if (anio == anioActual && mes > mesActual) {
+        return true;
+    }
+
+    if (anio == anioActual && mes == mesActual && dia > diaActual) {
+        return true;
+    }
+
+    return false;
+}
+
+bool validarFechaNacimiento(string fecha) {
+    regex patron("^\\d{4}-\\d{2}-\\d{2}$");
+
+    if (fecha.empty()) {
+        cout << "ALERTA: La fecha de nacimiento es obligatoria." << endl;
+        return false;
+    }
+
+    if (!regex_match(fecha, patron)) {
+        cout << "ALERTA: La fecha debe tener el formato AAAA-MM-DD." << endl;
+        return false;
+    }
+
+    int anio = stoi(fecha.substr(0, 4));
+    int mes = stoi(fecha.substr(5, 2));
+    int dia = stoi(fecha.substr(8, 2));
+
+    if (!fechaReal(anio, mes, dia)) {
+        cout << "ALERTA: La fecha ingresada no es real." << endl;
+        return false;
+    }
+
+    if (fechaFutura(anio, mes, dia)) {
+        cout << "ALERTA: No se permiten fechas futuras." << endl;
+        return false;
+    }
+
+    return true;
+}
+
 bool validarTipoSangreTexto(string sangre) {
     regex patron("^(AB|A|B|O)[+-]$");
     return regex_match(sangre, patron);
@@ -265,6 +355,22 @@ int pedirTelefono() {
     } while (true);
 }
 
+string pedirFechaNacimiento() {
+    string fecha;
+
+    do {
+        cout << "Ingrese fecha de nacimiento YYYY-MM-DD: ";
+        getline(cin, fecha);
+
+        if (validarFechaNacimiento(fecha)) {
+            return fecha;
+        }
+
+        cout << "Vuelva a ingresar la fecha de nacimiento." << endl << endl;
+
+    } while (true);
+}
+
 int pedirEnteroPositivo(string mensaje) {
     string entrada;
 
@@ -328,6 +434,7 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     cout << "- Nombres y apellidos obligatorios, solo letras y espacios, maximo 60 caracteres." << endl;
     cout << "- Direccion obligatoria, maximo 100 caracteres, sin caracteres peligrosos." << endl;
     cout << "- Telefono obligatorio, solo numeros, exactamente 8 digitos." << endl;
+    cout << "- Fecha de nacimiento obligatoria, formato YYYY-MM-DD, real y no futura." << endl;
     cout << endl;
 
     codigo = pedirCodigoEstudiante(id_actual, esActualizacion);
@@ -335,9 +442,7 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     apellidos = pedirApellidos();
     direccion = pedirDireccion();
     telefono = pedirTelefono();
-
-    cout << "Ingrese fecha de nacimiento YYYY-MM-DD: ";
-    getline(cin, fecha_nacimiento);
+    fecha_nacimiento = pedirFechaNacimiento();
 
     id_tipo_sangre = pedirEnteroPositivo("Ingrese ID tipo de sangre: ");
 
