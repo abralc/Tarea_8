@@ -418,6 +418,39 @@ int pedirId(string mensaje) {
     return id;
 }
 
+int pedirTipoSangreEstudiante() {
+    int id_tipo_sangre;
+    Estudiante validador;
+    TipoSangre tipo;
+
+    do {
+        cout << endl;
+        cout << "Tipos de sangre disponibles:" << endl;
+        tipo.leer();
+
+        id_tipo_sangre = pedirEnteroPositivo("Ingrese ID tipo de sangre: ");
+
+        if (validador.tipoSangreExiste(id_tipo_sangre)) {
+            return id_tipo_sangre;
+        }
+
+        cout << "ALERTA: El tipo de sangre ingresado no existe en la tabla tipos_sangre." << endl;
+        cout << "Vuelva a ingresar un tipo de sangre valido." << endl << endl;
+
+    } while (true);
+}
+
+bool validarIdEstudianteExistente(int id) {
+    Estudiante validador;
+
+    if (!validador.estudianteExiste(id)) {
+        cout << "ALERTA: No existe un estudiante con ese ID." << endl;
+        return false;
+    }
+
+    return true;
+}
+
 Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false) {
     string codigo;
     string nombres;
@@ -435,6 +468,7 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     cout << "- Direccion obligatoria, maximo 100 caracteres, sin caracteres peligrosos." << endl;
     cout << "- Telefono obligatorio, solo numeros, exactamente 8 digitos." << endl;
     cout << "- Fecha de nacimiento obligatoria, formato YYYY-MM-DD, real y no futura." << endl;
+    cout << "- Tipo de sangre obligatorio, numerico y existente en la tabla tipos_sangre." << endl;
     cout << endl;
 
     codigo = pedirCodigoEstudiante(id_actual, esActualizacion);
@@ -443,8 +477,7 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     direccion = pedirDireccion();
     telefono = pedirTelefono();
     fecha_nacimiento = pedirFechaNacimiento();
-
-    id_tipo_sangre = pedirEnteroPositivo("Ingrese ID tipo de sangre: ");
+    id_tipo_sangre = pedirTipoSangreEstudiante();
 
     Estudiante estudiante(
         codigo,
@@ -477,6 +510,10 @@ void buscarEstudiante() {
         return;
     }
 
+    if (!validarIdEstudianteExistente(id)) {
+        return;
+    }
+
     Estudiante estudiante;
     estudiante.buscarPorId(id);
 }
@@ -485,6 +522,10 @@ void modificarEstudiante() {
     int id = pedirId("Ingrese ID del estudiante a modificar: ");
 
     if (id == -1) {
+        return;
+    }
+
+    if (!validarIdEstudianteExistente(id)) {
         return;
     }
 
@@ -497,6 +538,20 @@ void eliminarEstudiante() {
     int id = pedirId("Ingrese ID del estudiante a eliminar: ");
 
     if (id == -1) {
+        return;
+    }
+
+    if (!validarIdEstudianteExistente(id)) {
+        return;
+    }
+
+    string confirmar;
+
+    cout << "Escriba SI para confirmar la eliminacion del estudiante: ";
+    getline(cin, confirmar);
+
+    if (confirmar != "SI") {
+        cout << "Eliminacion cancelada." << endl;
         return;
     }
 

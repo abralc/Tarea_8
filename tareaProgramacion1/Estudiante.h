@@ -26,4 +26,6 @@ public:
     void buscarPorId(int id);
 
     bool codigoExiste(string cod, int id_excluir = 0);
+    bool estudianteExiste(int id);
+    bool tipoSangreExiste(int id_tipo_sangre);
 };

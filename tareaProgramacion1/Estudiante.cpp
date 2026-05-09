@@ -238,3 +238,65 @@ bool Estudiante::codigoExiste(string cod, int id_excluir) {
     cn.cerrar_conexion();
     return existe;
 }
+
+bool Estudiante::estudianteExiste(int id) {
+    ConexionBD cn;
+    MYSQL_RES* resultado;
+    bool existe = false;
+
+    if (!cn.abrir_conexion()) {
+        return false;
+    }
+
+    string consulta = "SELECT id_estudiante FROM estudiantes WHERE id_estudiante="
+        + to_string(id)
+        + " LIMIT 1";
+
+    int estado = mysql_query(cn.getConector(), consulta.c_str());
+
+    if (estado == 0) {
+        resultado = mysql_store_result(cn.getConector());
+
+        if (resultado != nullptr && mysql_num_rows(resultado) > 0) {
+            existe = true;
+        }
+
+        if (resultado != nullptr) {
+            mysql_free_result(resultado);
+        }
+    }
+
+    cn.cerrar_conexion();
+    return existe;
+}
+
+bool Estudiante::tipoSangreExiste(int id_tipo_sangre) {
+    ConexionBD cn;
+    MYSQL_RES* resultado;
+    bool existe = false;
+
+    if (!cn.abrir_conexion()) {
+        return false;
+    }
+
+    string consulta = "SELECT id_tipo_sangre FROM tipos_sangre WHERE id_tipo_sangre="
+        + to_string(id_tipo_sangre)
+        + " LIMIT 1";
+
+    int estado = mysql_query(cn.getConector(), consulta.c_str());
+
+    if (estado == 0) {
+        resultado = mysql_store_result(cn.getConector());
+
+        if (resultado != nullptr && mysql_num_rows(resultado) > 0) {
+            existe = true;
+        }
+
+        if (resultado != nullptr) {
+            mysql_free_result(resultado);
+        }
+    }
+
+    cn.cerrar_conexion();
+    return existe;
+}
