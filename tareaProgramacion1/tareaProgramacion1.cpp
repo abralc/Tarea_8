@@ -2,6 +2,7 @@
 #include <string>
 #include <limits>
 #include <regex>
+#include <cctype>
 #include "Estudiante.h"
 #include "TipoSangre.h"
 
@@ -184,6 +185,112 @@ bool validarTipoSangreTexto(string sangre) {
     return regex_match(sangre, patron);
 }
 
+string pedirCodigoEstudiante(int id_actual, bool esActualizacion) {
+    string codigo;
+
+    do {
+        cout << "Ingrese codigo: ";
+        getline(cin, codigo);
+
+        if (validarCodigoEstudiante(codigo, id_actual, esActualizacion)) {
+            return codigo;
+        }
+
+        cout << "Vuelva a ingresar el codigo." << endl << endl;
+
+    } while (true);
+}
+
+string pedirNombres() {
+    string nombres;
+
+    do {
+        cout << "Ingrese nombres: ";
+        getline(cin, nombres);
+
+        if (validarNombres(nombres)) {
+            return nombres;
+        }
+
+        cout << "Vuelva a ingresar los nombres." << endl << endl;
+
+    } while (true);
+}
+
+string pedirApellidos() {
+    string apellidos;
+
+    do {
+        cout << "Ingrese apellidos: ";
+        getline(cin, apellidos);
+
+        if (validarApellidos(apellidos)) {
+            return apellidos;
+        }
+
+        cout << "Vuelva a ingresar los apellidos." << endl << endl;
+
+    } while (true);
+}
+
+string pedirDireccion() {
+    string direccion;
+
+    do {
+        cout << "Ingrese direccion: ";
+        getline(cin, direccion);
+
+        if (validarDireccion(direccion)) {
+            return direccion;
+        }
+
+        cout << "Vuelva a ingresar la direccion." << endl << endl;
+
+    } while (true);
+}
+
+int pedirTelefono() {
+    string telefonoTexto;
+
+    do {
+        cout << "Ingrese telefono: ";
+        getline(cin, telefonoTexto);
+
+        if (validarTelefono(telefonoTexto)) {
+            return stoi(telefonoTexto);
+        }
+
+        cout << "Vuelva a ingresar el telefono." << endl << endl;
+
+    } while (true);
+}
+
+int pedirEnteroPositivo(string mensaje) {
+    string entrada;
+
+    do {
+        cout << mensaje;
+        getline(cin, entrada);
+
+        if (!soloNumeros(entrada)) {
+            cout << "ALERTA: Debe ingresar solo numeros." << endl;
+            cout << "Vuelva a intentarlo." << endl << endl;
+            continue;
+        }
+
+        int numero = stoi(entrada);
+
+        if (numero <= 0) {
+            cout << "ALERTA: El valor debe ser mayor que cero." << endl;
+            cout << "Vuelva a intentarlo." << endl << endl;
+            continue;
+        }
+
+        return numero;
+
+    } while (true);
+}
+
 int pedirId(string mensaje) {
     string entrada;
 
@@ -210,7 +317,6 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     string nombres;
     string apellidos;
     string direccion;
-    string telefonoTexto;
     string fecha_nacimiento;
     int telefono;
     int id_tipo_sangre;
@@ -224,59 +330,16 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
     cout << "- Telefono obligatorio, solo numeros, exactamente 8 digitos." << endl;
     cout << endl;
 
-    cout << "Ingrese codigo: ";
-    getline(cin, codigo);
-
-    if (!validarCodigoEstudiante(codigo, id_actual, esActualizacion)) {
-        Estudiante estudianteInvalido;
-        estudianteInvalido.setIdEstudiante(-1);
-        return estudianteInvalido;
-    }
-
-    cout << "Ingrese nombres: ";
-    getline(cin, nombres);
-
-    if (!validarNombres(nombres)) {
-        Estudiante estudianteInvalido;
-        estudianteInvalido.setIdEstudiante(-1);
-        return estudianteInvalido;
-    }
-
-    cout << "Ingrese apellidos: ";
-    getline(cin, apellidos);
-
-    if (!validarApellidos(apellidos)) {
-        Estudiante estudianteInvalido;
-        estudianteInvalido.setIdEstudiante(-1);
-        return estudianteInvalido;
-    }
-
-    cout << "Ingrese direccion: ";
-    getline(cin, direccion);
-
-    if (!validarDireccion(direccion)) {
-        Estudiante estudianteInvalido;
-        estudianteInvalido.setIdEstudiante(-1);
-        return estudianteInvalido;
-    }
-
-    cout << "Ingrese telefono: ";
-    getline(cin, telefonoTexto);
-
-    if (!validarTelefono(telefonoTexto)) {
-        Estudiante estudianteInvalido;
-        estudianteInvalido.setIdEstudiante(-1);
-        return estudianteInvalido;
-    }
-
-    telefono = stoi(telefonoTexto);
+    codigo = pedirCodigoEstudiante(id_actual, esActualizacion);
+    nombres = pedirNombres();
+    apellidos = pedirApellidos();
+    direccion = pedirDireccion();
+    telefono = pedirTelefono();
 
     cout << "Ingrese fecha de nacimiento YYYY-MM-DD: ";
     getline(cin, fecha_nacimiento);
 
-    cout << "Ingrese ID tipo de sangre: ";
-    cin >> id_tipo_sangre;
-    limpiarBuffer();
+    id_tipo_sangre = pedirEnteroPositivo("Ingrese ID tipo de sangre: ");
 
     Estudiante estudiante(
         codigo,
@@ -294,12 +357,6 @@ Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false)
 
 void registrarEstudiante() {
     Estudiante estudiante = pedirDatosEstudiante(0, false);
-
-    if (estudiante.getIdEstudiante() == -1) {
-        cout << "No se registro el estudiante por errores de validacion." << endl;
-        return;
-    }
-
     estudiante.crear();
 }
 
@@ -327,12 +384,6 @@ void modificarEstudiante() {
     }
 
     Estudiante estudiante = pedirDatosEstudiante(id, true);
-
-    if (estudiante.getIdEstudiante() == -1) {
-        cout << "No se actualizo el estudiante por errores de validacion." << endl;
-        return;
-    }
-
     estudiante.setIdEstudiante(id);
     estudiante.actualizar();
 }
