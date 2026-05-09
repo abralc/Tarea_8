@@ -31,6 +31,45 @@ bool soloNumeros(string texto) {
     return true;
 }
 
+bool validarCodigoFormato(string codigo) {
+    regex patron("^E[0-9]{3}$");
+    return regex_match(codigo, patron);
+}
+
+bool validarCodigoEstudiante(string codigo, int id_actual, bool esActualizacion) {
+    Estudiante validador;
+
+    if (codigo.empty()) {
+        cout << "ALERTA: El codigo es obligatorio." << endl;
+        return false;
+    }
+
+    if (codigo.length() > 4) {
+        cout << "ALERTA: El codigo debe tener maximo 4 caracteres." << endl;
+        return false;
+    }
+
+    if (!validarCodigoFormato(codigo)) {
+        cout << "ALERTA: El codigo debe tener el formato E001, E002, E003." << endl;
+        return false;
+    }
+
+    if (esActualizacion) {
+        if (validador.codigoExiste(codigo, id_actual)) {
+            cout << "ALERTA: El codigo ya esta registrado en otro estudiante." << endl;
+            return false;
+        }
+    }
+    else {
+        if (validador.codigoExiste(codigo)) {
+            cout << "ALERTA: El codigo ya existe. No se permiten codigos duplicados." << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool validarTipoSangreTexto(string sangre) {
     regex patron("^(AB|A|B|O)[+-]$");
     return regex_match(sangre, patron);
@@ -57,13 +96,29 @@ int pedirId(string mensaje) {
     return id;
 }
 
-Estudiante pedirDatosEstudiante() {
-    string codigo, nombres, apellidos, direccion, fecha_nacimiento;
-    int telefono, id_tipo_sangre;
+Estudiante pedirDatosEstudiante(int id_actual = 0, bool esActualizacion = false) {
+    string codigo;
+    string nombres;
+    string apellidos;
+    string direccion;
+    string fecha_nacimiento;
+    int telefono;
+    int id_tipo_sangre;
+
+    cout << endl;
+    cout << "Ingrese los datos del estudiante." << endl;
+    cout << "Codigo: obligatorio, maximo 4 caracteres, formato E001." << endl;
+    cout << endl;
 
     cout << "Ingrese codigo: ";
     cin >> codigo;
     limpiarBuffer();
+
+    if (!validarCodigoEstudiante(codigo, id_actual, esActualizacion)) {
+        Estudiante estudianteInvalido;
+        estudianteInvalido.setIdEstudiante(-1);
+        return estudianteInvalido;
+    }
 
     cout << "Ingrese nombres: ";
     getline(cin, nombres);
@@ -85,12 +140,28 @@ Estudiante pedirDatosEstudiante() {
     cin >> id_tipo_sangre;
     limpiarBuffer();
 
-    Estudiante estudiante(codigo, nombres, apellidos, direccion, telefono, fecha_nacimiento, id_tipo_sangre, 0);
+    Estudiante estudiante(
+        codigo,
+        nombres,
+        apellidos,
+        direccion,
+        telefono,
+        fecha_nacimiento,
+        id_tipo_sangre,
+        id_actual
+    );
+
     return estudiante;
 }
 
 void registrarEstudiante() {
-    Estudiante estudiante = pedirDatosEstudiante();
+    Estudiante estudiante = pedirDatosEstudiante(0, false);
+
+    if (estudiante.getIdEstudiante() == -1) {
+        cout << "No se registro el estudiante por errores de validacion." << endl;
+        return;
+    }
+
     estudiante.crear();
 }
 
@@ -117,7 +188,13 @@ void modificarEstudiante() {
         return;
     }
 
-    Estudiante estudiante = pedirDatosEstudiante();
+    Estudiante estudiante = pedirDatosEstudiante(id, true);
+
+    if (estudiante.getIdEstudiante() == -1) {
+        cout << "No se actualizo el estudiante por errores de validacion." << endl;
+        return;
+    }
+
     estudiante.setIdEstudiante(id);
     estudiante.actualizar();
 }
@@ -263,7 +340,7 @@ void eliminarTipoSangre() {
 }
 
 int main() {
-    int opcion;
+    int opcion = -1;
     string entrada;
 
     do {

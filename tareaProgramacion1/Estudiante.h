@@ -24,4 +24,6 @@ public:
     void actualizar();
     void borrar();
     void buscarPorId(int id);
+
+    bool codigoExiste(string cod, int id_excluir = 0);
 };
