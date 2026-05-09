@@ -134,15 +134,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConexionBD.cpp" />
-    <ClCompile Include="db.cpp" />
     <ClCompile Include="Estudiante.cpp" />
     <ClCompile Include="Persona.cpp" />
     <ClCompile Include="tareaProgramacion1.cpp" />
+    <ClCompile Include="TipoSangre.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConexionBD.h" />
     <ClInclude Include="Estudiante.h" />
     <ClInclude Include="Persona.h" />
+    <ClInclude Include="TipoSangre.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
