@@ -37,14 +37,14 @@ void Estudiante::crear() {
         return;
     }
 
-    string consulta = "INSERT INTO estudiantes(codigo, nombres, apellidos, direccion, telefono, fecha_nacimiento, id_tipo_sangre) VALUES('"
-        + cn.escapar(codigo) + "','"
-        + cn.escapar(nombres) + "','"
-        + cn.escapar(apellidos) + "','"
-        + cn.escapar(direccion) + "',"
-        + to_string(telefono) + ",'"
-        + cn.escapar(fecha_nacimiento) + "',"
-        + to_string(id_tipo_sangre) + ")";
+    string consulta = "INSERT INTO estudiantes(codigo, nombres, apellidos, direccion, telefono, fecha_nacimiento, id_tipo_sangre) VALUES("
+        + cn.textoSQL(codigo) + ","
+        + cn.textoSQL(nombres) + ","
+        + cn.textoSQL(apellidos) + ","
+        + cn.textoSQL(direccion) + ","
+        + cn.numeroSQL(telefono) + ","
+        + cn.textoSQL(fecha_nacimiento) + ","
+        + cn.numeroSQL(id_tipo_sangre) + ")";
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -112,16 +112,16 @@ void Estudiante::actualizar() {
         return;
     }
 
-    string consulta = "UPDATE estudiantes SET codigo='"
-        + cn.escapar(codigo) + "', nombres='"
-        + cn.escapar(nombres) + "', apellidos='"
-        + cn.escapar(apellidos) + "', direccion='"
-        + cn.escapar(direccion) + "', telefono="
-        + to_string(telefono) + ", fecha_nacimiento='"
-        + cn.escapar(fecha_nacimiento) + "', id_tipo_sangre="
-        + to_string(id_tipo_sangre)
+    string consulta = "UPDATE estudiantes SET codigo="
+        + cn.textoSQL(codigo) + ", nombres="
+        + cn.textoSQL(nombres) + ", apellidos="
+        + cn.textoSQL(apellidos) + ", direccion="
+        + cn.textoSQL(direccion) + ", telefono="
+        + cn.numeroSQL(telefono) + ", fecha_nacimiento="
+        + cn.textoSQL(fecha_nacimiento) + ", id_tipo_sangre="
+        + cn.numeroSQL(id_tipo_sangre)
         + " WHERE id_estudiante="
-        + to_string(id_estudiante);
+        + cn.numeroSQL(id_estudiante);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -143,7 +143,8 @@ void Estudiante::borrar() {
         return;
     }
 
-    string consulta = "DELETE FROM estudiantes WHERE id_estudiante=" + to_string(id_estudiante);
+    string consulta = "DELETE FROM estudiantes WHERE id_estudiante="
+        + cn.numeroSQL(id_estudiante);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -172,7 +173,7 @@ void Estudiante::buscarPorId(int id) {
         "e.telefono, e.fecha_nacimiento, ts.sangre "
         "FROM estudiantes e "
         "LEFT JOIN tipos_sangre ts ON e.id_tipo_sangre = ts.id_tipo_sangre "
-        "WHERE e.id_estudiante=" + to_string(id);
+        "WHERE e.id_estudiante=" + cn.numeroSQL(id);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -212,11 +213,11 @@ bool Estudiante::codigoExiste(string cod, int id_excluir) {
         return false;
     }
 
-    string consulta = "SELECT id_estudiante FROM estudiantes WHERE codigo='"
-        + cn.escapar(cod) + "'";
+    string consulta = "SELECT id_estudiante FROM estudiantes WHERE codigo="
+        + cn.textoSQL(cod);
 
     if (id_excluir > 0) {
-        consulta += " AND id_estudiante <> " + to_string(id_excluir);
+        consulta += " AND id_estudiante <> " + cn.numeroSQL(id_excluir);
     }
 
     consulta += " LIMIT 1";
@@ -249,7 +250,7 @@ bool Estudiante::estudianteExiste(int id) {
     }
 
     string consulta = "SELECT id_estudiante FROM estudiantes WHERE id_estudiante="
-        + to_string(id)
+        + cn.numeroSQL(id)
         + " LIMIT 1";
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
@@ -280,7 +281,7 @@ bool Estudiante::tipoSangreExiste(int id_tipo_sangre) {
     }
 
     string consulta = "SELECT id_tipo_sangre FROM tipos_sangre WHERE id_tipo_sangre="
-        + to_string(id_tipo_sangre)
+        + cn.numeroSQL(id_tipo_sangre)
         + " LIMIT 1";
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());

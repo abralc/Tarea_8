@@ -19,7 +19,7 @@ bool ConexionBD::abrir_conexion() {
         return false;
     }
 
-    conector = mysql_real_connect(
+    MYSQL* resultadoConexion = mysql_real_connect(
         conector,
         servidor,
         usuario,
@@ -30,8 +30,10 @@ bool ConexionBD::abrir_conexion() {
         0
     );
 
-    if (conector == nullptr) {
+    if (resultadoConexion == nullptr) {
         cout << "Error de conexion: " << mysql_error(conector) << endl;
+        mysql_close(conector);
+        conector = nullptr;
         return false;
     }
 
@@ -56,15 +58,25 @@ string ConexionBD::escapar(string texto) {
     }
 
     char* buffer = new char[texto.length() * 2 + 1];
+
     unsigned long longitud = mysql_real_escape_string(
         conector,
         buffer,
         texto.c_str(),
-        texto.length()
+        (unsigned long)texto.length()
     );
 
     string resultado(buffer, longitud);
+
     delete[] buffer;
 
     return resultado;
+}
+
+string ConexionBD::textoSQL(string texto) {
+    return "'" + escapar(texto) + "'";
+}
+
+string ConexionBD::numeroSQL(int numero) {
+    return to_string(numero);
 }

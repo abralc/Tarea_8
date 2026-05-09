@@ -12,5 +12,8 @@ public:
     bool abrir_conexion();
     MYSQL* getConector();
     void cerrar_conexion();
+
     string escapar(string texto);
-};
+    string textoSQL(string texto);
+    string numeroSQL(int numero);
+};;

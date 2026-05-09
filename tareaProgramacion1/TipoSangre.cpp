@@ -39,8 +39,8 @@ void TipoSangre::crear() {
         return;
     }
 
-    string consulta = "INSERT INTO tipos_sangre(sangre) VALUES('"
-        + cn.escapar(sangre) + "')";
+    string consulta = "INSERT INTO tipos_sangre(sangre) VALUES("
+        + cn.textoSQL(sangre) + ")";
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -95,10 +95,10 @@ void TipoSangre::actualizar() {
         return;
     }
 
-    string consulta = "UPDATE tipos_sangre SET sangre='"
-        + cn.escapar(sangre)
-        + "' WHERE id_tipo_sangre="
-        + to_string(id_tipo_sangre);
+    string consulta = "UPDATE tipos_sangre SET sangre="
+        + cn.textoSQL(sangre)
+        + " WHERE id_tipo_sangre="
+        + cn.numeroSQL(id_tipo_sangre);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -121,7 +121,7 @@ void TipoSangre::borrar() {
     }
 
     string consulta = "DELETE FROM tipos_sangre WHERE id_tipo_sangre="
-        + to_string(id_tipo_sangre);
+        + cn.numeroSQL(id_tipo_sangre);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -147,7 +147,7 @@ void TipoSangre::buscarPorId(int id) {
     }
 
     string consulta = "SELECT id_tipo_sangre, sangre FROM tipos_sangre WHERE id_tipo_sangre="
-        + to_string(id);
+        + cn.numeroSQL(id);
 
     int estado = mysql_query(cn.getConector(), consulta.c_str());
 
@@ -183,7 +183,7 @@ bool TipoSangre::existeTipoSangre(int id) {
     }
 
     string consulta = "SELECT id_tipo_sangre FROM tipos_sangre WHERE id_tipo_sangre="
-        + to_string(id)
+        + cn.numeroSQL(id)
         + " LIMIT 1";
 
     if (mysql_query(cn.getConector(), consulta.c_str()) == 0) {
@@ -211,12 +211,11 @@ bool TipoSangre::existeSangre(string tipo, int id_excluir) {
         return false;
     }
 
-    string consulta = "SELECT id_tipo_sangre FROM tipos_sangre WHERE sangre='"
-        + cn.escapar(tipo)
-        + "'";
+    string consulta = "SELECT id_tipo_sangre FROM tipos_sangre WHERE sangre="
+        + cn.textoSQL(tipo);
 
     if (id_excluir > 0) {
-        consulta += " AND id_tipo_sangre <> " + to_string(id_excluir);
+        consulta += " AND id_tipo_sangre <> " + cn.numeroSQL(id_excluir);
     }
 
     consulta += " LIMIT 1";
